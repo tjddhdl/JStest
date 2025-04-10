@@ -26,7 +26,7 @@ function registerBook() {
     price: bookPrice.value,
   }
   const list = document.querySelectorAll('#book-list-tbody tr');
-  
+
   // 중복 검사
   if (list != null) {
     for (let i = 0; i < list.length; i++) {
@@ -113,6 +113,7 @@ function bookNumberCheck() {
 // 검색
 function search() {
   const searchText = document.getElementById('search-input');
+  const textRegex = new RegExp(searchText.value, 'g');
   const list = document.querySelectorAll('#book-list-tbody tr');
   list.forEach((tr) => {
     tr.hidden = false;
@@ -122,7 +123,7 @@ function search() {
   }
   list.forEach((tr) => {
     const td = tr.querySelectorAll('td')[2];
-    if (td.textContent != searchText.value) {
+    if (!textRegex.test(td.textContent)) {
       tr.hidden = true;
     }
   });
