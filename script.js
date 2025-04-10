@@ -113,7 +113,7 @@ function bookNumberCheck() {
 // 검색
 function search() {
   const searchText = document.getElementById('search-input');
-  const textRegex = new RegExp(searchText.value, 'g');
+  const textRegex = new RegExp(searchText.value);
   const list = document.querySelectorAll('#book-list-tbody tr');
   list.forEach((tr) => {
     tr.hidden = false;
