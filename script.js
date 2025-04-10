@@ -1,3 +1,5 @@
+let books = [];
+
 function registerBook() {
   const category = document.getElementById('category');
   if (category.value == '') {
@@ -17,128 +19,98 @@ function registerBook() {
     return;
   }
 
-  const tbody = document.getElementById('book-list-tbody');
-  const tr = document.createElement('tr');
-
-  const td = document.createElement('td');
-  const td1 = document.createElement('td');
-  const td2 = document.createElement('td');
-  const td3 = document.createElement('td');
-  const td4 = document.createElement('td');
-  const deletebutton = document.createElement('button');
-
-  td.append(bookNumber());
-  td1.append(category.value);
-  td2.append(bookName.value);
-  td3.append(bookPrice.value);
-  td4.append(deletebutton);
-
-  tr.appendChild(td);
-  tr.appendChild(td1);
-  tr.appendChild(td2);
-  tr.appendChild(td3);
-  tr.appendChild(td4);
-
-  deletebutton.textContent = '삭제';
-  deletebutton.addEventListener('click', () => {
-    tr.remove();
-    listNumberCheck();
-  });
-
+  const book = {
+    id: bookNumber(),
+    category: category.value,
+    title: bookName.value,
+    price: bookPrice.value,
+  }
   const list = document.querySelectorAll('#book-list-tbody tr');
-  if (list != '') {
+  
+  // 중복 검사
+  if (list != null) {
     for (let i = 0; i < list.length; i++) {
       const listTd = list[i].querySelectorAll('td');
-      if (listTd[1].textContent == category.value && listTd[2].textContent == bookName.value) {
+      if (listTd[1].textContent == book.category && listTd[2].textContent == book.title) {
         alert('같은 카테고리 안에 동일한 책이 중복되어 있습니다');
         return;
       }
     }
-
-    tbody.appendChild(tr);
-
-    category.value = '';
-    bookName.value = '';
-    bookPrice.value = '';
-    bookNumber();
-    alert('도서가 성공적으로 등록되었습니다');
   }
+  books.push(book);
+  tableLoad();
+  category.value = '';
+  bookName.value = '';
+  bookPrice.value = '';
+  alert('도서가 성공적으로 등록되었습니다');
+}
 
-  // const sortbutton = document.getElementById('#sort-select');
-  // sortbutton.addEventListener('change', () => {
-  //   console.log('di');
-  // });
-};
-
-// 초기 번호부여
 function bookNumber() {
   const list = document.querySelectorAll('#book-list-tbody tr');
   return list.length + 1;
 };
 
-// 번호 재부여
-function listNumberCheck() {
-  const list = document.querySelectorAll('#book-list-tbody tr');
-  for (let i = 0; i < list.length; i++) {
-    list[i].querySelector('td').textContent = i + 1;
-  };
-};
+// 테이블 재생성
+function tableLoad() {
+  const tbody = document.getElementById('book-list-tbody');
+  tbody.innerHTML = '';
 
-// 정렬려려렬려려려ㅕㅕ려dkdkdkkkkkkkkkkkkkkkkkkkkkkkkkkk
-function bookSorts() {
+  books.forEach(book => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+    <td>${book.id}</td>
+    <td>${book.category}</td>
+    <td>${book.title}</td>
+    <td>${book.price}</td>
+    <td>
+      <button onclick="deleteBook(${book.id})">삭제</button></td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// 정렬
+function bookSort() {
   const select = document.getElementById('sort-select');
-
-  const list = document.querySelectorAll('#book-list-tbody tr');
-
-  if (list != null) {
-    if (select.value == 'ascending') {
-      for (let i = 0; i < list.length; i++) {
-        for (let j = 0; j < list.length - i - 1; j++) {
-          const a = list[j].querySelectorAll('td');
-          console.log('a: ', a);
-          const b = list[j + 1].querySelectorAll('td');
-          console.log('b: ', b);
-          if (a[3] > b[3]) {
-            list[j] = b;
-            list[j + 1] = a;
-          }
-        }
+  if (select.value == 'ascending') {
+    books.sort((a, b) => {
+      if (a.price > b.price) {
+        return 1;
+      } else if (a.price < b.price) {
+        return -1;
+      } else {
+        return 0;
       }
-    } else if (select.value == 'descending') {
-      for (let i = 0; i < list.length; i++) {
-        for (let j = 0; j < list.length - i - 1; j++) {
-          const a = list[j].querySelectorAll('td');
-          const b = list[j + 1].querySelectorAll('td');
-          if (b[3] > a[3]) {
-            list[j] = b;
-            list[j + 1] = a;
-          }
-        }
+    });
+  } else if (select.value == 'descending') {
+    books.sort((a, b) => {
+      if (a.price < b.price) {
+        return 1;
+      } else if (a.price > b.price) {
+        return -1;
+      } else {
+        return 0;
       }
-    }
+    });
   }
-  const tr = document.querySelectorAll('#book-list-tbody-tr');
-  list.forEach(row => tr.appendChild(row));
-};
+  tableLoad();
+}
 
-// 정렬 다시 dkdksadfsakndfkanowibg
-function bookSort1() {
-  const select = document.getElementById('sort-select');
-  const list = Array.from(document.querySelectorAll('#book-list-tbody tr'));
-  const body = document.querySelectorAll('book-list-tbody tr');
-  if (list != null) {
-    if (select.value == 'ascending') {
-      list.sort((a, b) => {
-        a.querySelectorAll('td')[3] > b.querySelectorAll('td')[3] ? 1 : -1
-      });
-    } else if (select.value == 'descending') {
+// 삭제버튼
+function deleteBook(bookid) {
+  books.splice(bookid - 1, 1);
+  bookNumberCheck();
+  tableLoad();
+}
 
-    }
+// 번호 재배열
+function bookNumberCheck() {
+  for (let i = 0; i < books.length; i++) {
+    books[i].id = i + 1;
   }
 }
 
-
-// 검색기능
+// 검색
 function search() {
   const searchText = document.getElementById('search-input');
   const list = document.querySelectorAll('#book-list-tbody tr');
@@ -154,4 +126,5 @@ function search() {
       tr.hidden = true;
     }
   });
+  searchText.value = '';
 }
